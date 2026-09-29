@@ -1,0 +1,1411 @@
+```html
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#f7f9ff">
+<title>Call Center — Davomat</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:linear-gradient(180deg,#f7f9ff,#edf1ff);
+  color:#151b3b;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+
+.app{
+  max-width:520px;
+  margin:auto;
+  padding:25px 18px 120px;
+}
+
+.header{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:22px;
+}
+
+.avatar{
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  background:#e3e8ff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:23px;
+  font-weight:700;
+  color:#5364df;
+  overflow:hidden;
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.name{
+  font-size:21px;
+  font-weight:700;
+}
+
+.role{
+  margin-top:4px;
+  color:#7b84a8;
+  font-size:14px;
+}
+
+.card{
+  background:white;
+  border-radius:24px;
+  padding:20px;
+  margin-bottom:15px;
+  box-shadow:0 7px 25px rgba(60,72,140,.09);
+}
+
+.date{
+  color:#7b84a8;
+  font-size:14px;
+  margin-bottom:8px;
+}
+
+.status{
+  font-size:19px;
+  font-weight:700;
+  margin-bottom:18px;
+}
+
+.time-row{
+  display:flex;
+  gap:12px;
+}
+
+.time-box{
+  flex:1;
+  background:#f7f8ff;
+  border-radius:18px;
+  padding:15px;
+}
+
+.time-label{
+  color:#7b84a8;
+  font-size:13px;
+  margin-bottom:5px;
+}
+
+.time{
+  font-size:22px;
+  font-weight:700;
+}
+
+.green{
+  color:#16a36a;
+}
+
+.red{
+  color:#e5484d;
+}
+
+.blue{
+  color:#5364df;
+}
+
+.buttons{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+button{
+  border:0;
+  font-family:inherit;
+  cursor:pointer;
+}
+
+.action{
+  width:100%;
+  padding:17px;
+  border-radius:18px;
+  font-size:17px;
+  font-weight:700;
+  color:white;
+}
+
+.arrival{
+  background:linear-gradient(135deg,#20b978,#11965e);
+}
+
+.leave{
+  background:linear-gradient(135deg,#f05c61,#d9363e);
+}
+
+.action:disabled{
+  opacity:.45;
+}
+
+.info{
+  text-align:center;
+  color:#7b84a8;
+  font-size:13px;
+  line-height:1.5;
+}
+
+.loader{
+  text-align:center;
+  padding:25px;
+  color:#7b84a8;
+}
+
+.error{
+  background:#fff0f0;
+  color:#d9363e;
+  padding:15px;
+  border-radius:16px;
+  line-height:1.45;
+  margin-bottom:15px;
+  display:none;
+}
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:30px;
+  transform:translate(-50%,20px);
+  background:#151b3b;
+  color:white;
+  padding:12px 18px;
+  border-radius:15px;
+  opacity:0;
+  pointer-events:none;
+  transition:.25s;
+  z-index:100;
+  max-width:90%;
+  text-align:center;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+.blocker{
+  position:fixed;
+  inset:0;
+  background:#f7f9ff;
+  z-index:200;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:25px;
+}
+
+.block-card{
+  background:white;
+  padding:28px 22px;
+  border-radius:25px;
+  text-align:center;
+  max-width:380px;
+  width:100%;
+  box-shadow:0 10px 35px rgba(60,72,140,.12);
+}
+
+.block-card .icon{
+  font-size:45px;
+}
+
+.block-card h2{
+  margin:14px 0 8px;
+}
+
+.block-card p{
+  color:#7b84a8;
+  line-height:1.5;
+}
+
+.reload{
+  background:#5364df;
+  color:white;
+  border-radius:14px;
+  padding:13px 22px;
+  font-size:16px;
+  font-weight:600;
+}
+
+.hidden{
+  display:none!important;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <div class="avatar" id="avatar">?</div>
+
+    <div>
+      <div class="name" id="name">Yuklanmoqda...</div>
+      <div class="role" id="role">—</div>
+    </div>
+  </div>
+
+  <div class="error" id="error"></div>
+
+  <div class="card">
+
+    <div class="date" id="date">Bugun</div>
+
+    <div class="status" id="status">
+      Davomat yuklanmoqda...
+    </div>
+
+    <div class="time-row">
+
+      <div class="time-box">
+        <div class="time-label">🟢 Ishga keldi</div>
+        <div class="time green" id="arrival">—</div>
+      </div>
+
+      <div class="time-box">
+        <div class="time-label">🔴 Ishdan ketdi</div>
+        <div class="time red" id="leave">—</div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="buttons">
+
+      <button
+        class="action arrival"
+        id="arrivalBtn"
+        onclick="checkIn()">
+        🟢 ISHGA KELDIM
+      </button>
+
+      <button
+        class="action leave"
+        id="leaveBtn"
+        onclick="checkOut()"
+        disabled>
+        🔴 ISHDAN KETDIM
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="time-label">⏱ Ishlagan vaqt</div>
+
+    <div
+      class="blue"
+      id="worked"
+      style="font-size:28px;font-weight:700;margin-top:7px;">
+      0 soat 0 daqiqa
+    </div>
+
+  </div>
+
+  <div class="card info">
+    🏢 Ishga kelishda joylashuv tekshiriladi.<br>
+    Ishdan ketishda joylashuv qayta so'ralmaydi.
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="blocker hidden" id="blocker">
+
+  <div class="block-card">
+
+    <div class="icon" id="blockIcon">📱</div>
+
+    <h2 id="blockTitle">
+      Telegram orqali oching
+    </h2>
+
+    <p id="blockText">
+      Ushbu ilovani Telegram bot ichidan oching.
+    </p>
+
+    <button
+      class="reload"
+      onclick="location.reload()">
+      Qayta yuklash
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+"use strict";
+
+/* =====================================================
+   GOOGLE APPS SCRIPT API
+   ===================================================== */
+
+var API =
+"https://script.google.com/macros/s/AKfycbyM3BhwYuxWxEfjC5emg_MqAG7YBaHCpqetnjwANKSLp4U2DRk-5ZfGNSw3peOiWK5K/exec";
+
+
+/* =====================================================
+   TELEGRAM
+   ===================================================== */
+
+var tg =
+window.Telegram &&
+window.Telegram.WebApp
+  ? window.Telegram.WebApp
+  : null;
+
+var initData =
+tg ? (tg.initData || "") : "";
+
+var tgUser =
+tg &&
+tg.initDataUnsafe &&
+tg.initDataUnsafe.user
+  ? tg.initDataUnsafe.user
+  : null;
+
+
+/* =====================================================
+   STATE
+   ===================================================== */
+
+var state = {
+  busy:false,
+  keldi:false,
+  ketdi:false,
+  keldiTime:"",
+  ketdiTime:"",
+  worked:"",
+  profile:null
+};
+
+
+/* =====================================================
+   HELPERS
+   ===================================================== */
+
+function $(id){
+  return document.getElementById(id);
+}
+
+
+function toast(message){
+
+  var el = $("toast");
+
+  el.textContent = message;
+
+  el.classList.add("show");
+
+  setTimeout(function(){
+    el.classList.remove("show");
+  },3000);
+}
+
+
+function showError(message){
+
+  var el = $("error");
+
+  el.textContent = message;
+
+  el.style.display = "block";
+}
+
+
+function hideError(){
+
+  $("error").style.display = "none";
+}
+
+
+function initials(name){
+
+  if(!name) return "?";
+
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0,2)
+    .map(function(x){
+      return x.charAt(0).toUpperCase();
+    })
+    .join("");
+}
+
+
+function today(){
+
+  var d = new Date();
+
+  var months = [
+    "yanvar",
+    "fevral",
+    "mart",
+    "aprel",
+    "may",
+    "iyun",
+    "iyul",
+    "avgust",
+    "sentabr",
+    "oktabr",
+    "noyabr",
+    "dekabr"
+  ];
+
+  return (
+    d.getDate() +
+    "-" +
+    months[d.getMonth()] +
+    "-" +
+    d.getFullYear()
+  );
+}
+
+
+/* =====================================================
+   TELEGRAM INIT
+   ===================================================== */
+
+function telegramInit(){
+
+  if(!tg){
+
+    showBlock(
+      "📱",
+      "Telegram orqali oching",
+      "Ilovani Telegram bot ichidan oching."
+    );
+
+    return false;
+  }
+
+  try{
+
+    tg.ready();
+
+    tg.expand();
+
+    if(tg.setHeaderColor){
+      tg.setHeaderColor("#f7f9ff");
+    }
+
+    if(tg.setBackgroundColor){
+      tg.setBackgroundColor("#f7f9ff");
+    }
+
+  }catch(e){}
+
+  if(!initData){
+
+    showBlock(
+      "🔒",
+      "Sessiya topilmadi",
+      "Ilovani Telegram bot ichidan qayta oching."
+    );
+
+    return false;
+  }
+
+  return true;
+}
+
+
+function showBlock(icon,title,text){
+
+  $("blockIcon").textContent = icon;
+
+  $("blockTitle").textContent = title;
+
+  $("blockText").textContent = text;
+
+  $("blocker").classList.remove("hidden");
+}
+
+
+/* =====================================================
+   PROFILE UI
+   ===================================================== */
+
+function renderTelegramUser(){
+
+  if(!tgUser) return;
+
+  var fullName =
+    ((tgUser.first_name || "") +
+    " " +
+    (tgUser.last_name || ""))
+    .trim();
+
+  $("name").textContent =
+    fullName || "Xodim";
+
+  $("avatar").textContent =
+    initials(fullName);
+
+  if(tgUser.photo_url){
+
+    var img = new Image();
+
+    img.src = tgUser.photo_url;
+
+    img.onload = function(){
+
+      $("avatar").innerHTML = "";
+
+      $("avatar").appendChild(img);
+
+    };
+
+  }
+}
+
+
+function renderProfile(data){
+
+  if(!data) return;
+
+  var name =
+    data.ism ||
+    data.name ||
+    data.fio ||
+    "";
+
+  var role =
+    data.lavozim ||
+    data.role ||
+    "";
+
+  if(name){
+    $("name").textContent = name;
+    $("avatar").textContent = initials(name);
+  }
+
+  if(role){
+    $("role").textContent = role;
+  }
+
+  state.profile = data;
+
+  renderAttendance(data);
+}
+
+
+/* =====================================================
+   ATTENDANCE UI
+   ===================================================== */
+
+function renderAttendance(data){
+
+  var times =
+    data.times ||
+    data.davomat ||
+    {};
+
+  state.keldiTime =
+    times.Keldi ||
+    times.keldi ||
+    data.keldi ||
+    data.keldiTime ||
+    "";
+
+  state.ketdiTime =
+    times.Ketdi ||
+    times.ketdi ||
+    data.ketdi ||
+    data.ketdiTime ||
+    "";
+
+  state.keldi = !!state.keldiTime;
+
+  state.ketdi = !!state.ketdiTime;
+
+  state.worked =
+    data.worked ||
+    data.ishlagan ||
+    data.ishlaganVaqt ||
+    "";
+
+
+  $("arrival").textContent =
+    state.keldiTime || "—";
+
+  $("leave").textContent =
+    state.ketdiTime || "—";
+
+
+  if(state.keldi && !state.ketdi){
+
+    $("status").textContent =
+      "🟢 Hozir ishda";
+
+  }else if(state.keldi && state.ketdi){
+
+    $("status").textContent =
+      "🔴 Bugungi ish yakunlangan";
+
+  }else{
+
+    $("status").textContent =
+      "⚪ Hali ishga kelmagan";
+  }
+
+
+  if(state.worked){
+
+    $("worked").textContent =
+      state.worked;
+
+  }else if(state.keldiTime && state.ketdiTime){
+
+    calculateWorked();
+
+  }else{
+
+    $("worked").textContent =
+      "0 soat 0 daqiqa";
+  }
+
+
+  $("arrivalBtn").disabled =
+    state.keldi;
+
+  $("leaveBtn").disabled =
+    !state.keldi || state.ketdi;
+}
+
+
+/* =====================================================
+   API
+   ===================================================== */
+
+async function api(params){
+
+  var query =
+    new URLSearchParams(params).toString();
+
+  var response =
+    await fetch(
+      API + "?" + query,
+      {
+        method:"GET",
+        redirect:"follow",
+        cache:"no-store"
+      }
+    );
+
+  if(!response.ok){
+
+    throw new Error(
+      "HTTP " + response.status
+    );
+  }
+
+  return await response.json();
+}
+
+
+/* =====================================================
+   LOAD PROFILE / ATTENDANCE
+   ===================================================== */
+
+async function loadData(){
+
+  hideError();
+
+  try{
+
+    var result = await api({
+      action:"profile",
+      initData:initData
+    });
+
+
+    if(!result.ok){
+
+      if(result.error === "auth"){
+
+        showBlock(
+          "🔄",
+          "Sessiya eskirdi",
+          "Telegram botga qayting va Web App'ni qayta oching."
+        );
+
+        return;
+      }
+
+
+      if(result.error === "not_registered"){
+
+        showBlock(
+          "📝",
+          "Ro'yxatdan o'tilmagansiz",
+          "Avval Telegram bot orqali ro'yxatdan o'ting."
+        );
+
+        return;
+      }
+
+
+      if(result.error === "not_approved"){
+
+        showBlock(
+          "⏳",
+          "Tasdiq kutilmoqda",
+          "CEO hali arizangizni tasdiqlamagan."
+        );
+
+        return;
+      }
+
+
+      throw new Error(
+        result.error || "server"
+      );
+    }
+
+
+    renderProfile(result);
+
+  }catch(error){
+
+    console.error(error);
+
+    showError(
+      "Server bilan aloqa o'rnatib bo'lmadi. Internetni tekshiring va qayta urinib ko'ring."
+    );
+  }
+}
+
+
+/* =====================================================
+   LOCATION
+   ===================================================== */
+
+function getLocation(){
+
+  return new Promise(function(resolve,reject){
+
+    if(!navigator.geolocation){
+
+      reject(
+        new Error("Geolokatsiya qo'llab-quvvatlanmaydi.")
+      );
+
+      return;
+    }
+
+
+    navigator.geolocation.getCurrentPosition(
+
+      function(position){
+
+        resolve({
+
+          lat:position.coords.latitude,
+
+          lng:position.coords.longitude,
+
+          accuracy:position.coords.accuracy
+
+        });
+
+      },
+
+      function(error){
+
+        if(error.code === 1){
+
+          reject(
+            new Error(
+              "Lokatsiyaga ruxsat berilmadi."
+            )
+          );
+
+        }else if(error.code === 2){
+
+          reject(
+            new Error(
+              "Joylashuv aniqlanmadi."
+            )
+          );
+
+        }else{
+
+          reject(
+            new Error(
+              "Joylashuvni olish vaqti tugadi."
+            )
+          );
+        }
+
+      },
+
+      {
+        enableHighAccuracy:true,
+        timeout:15000,
+        maximumAge:0
+      }
+
+    );
+
+  });
+}
+
+
+/* =====================================================
+   KELDIM
+   ===================================================== */
+
+async function checkIn(){
+
+  if(state.busy) return;
+
+  if(state.keldi){
+
+    toast(
+      "Siz bugun allaqachon kelgansiz."
+    );
+
+    return;
+  }
+
+
+  state.busy = true;
+
+  $("arrivalBtn").disabled = true;
+
+  toast("📍 Joylashuvingiz aniqlanmoqda...");
+
+
+  try{
+
+    var location =
+      await getLocation();
+
+
+    toast(
+      "📍 Joylashuv tekshirilmoqda..."
+    );
+
+
+    var result =
+      await api({
+
+        action:"checkin",
+
+        status:"Keldi",
+
+        lat:location.lat,
+
+        lng:location.lng,
+
+        accuracy:location.accuracy,
+
+        initData:initData
+
+      });
+
+
+    if(!result.ok){
+
+      if(result.error === "auth"){
+
+        showBlock(
+          "🔄",
+          "Sessiya eskirdi",
+          "Telegram botdan Web App'ni qayta oching."
+        );
+
+        return;
+      }
+
+
+      if(result.error === "outside"){
+
+        toast(
+          "❌ Siz ish joyi belgilangan hududda emassiz."
+        );
+
+        return;
+      }
+
+
+      if(result.error === "already"){
+
+        state.keldi = true;
+
+        state.keldiTime =
+          result.time || "";
+
+        renderAttendance({
+          times:{
+            Keldi:state.keldiTime,
+            Ketdi:state.ketdiTime
+          }
+        });
+
+        return;
+      }
+
+
+      throw new Error(
+        result.error || "server"
+      );
+    }
+
+
+    state.keldi = true;
+
+    state.keldiTime =
+      result.time || "";
+
+
+    renderAttendance({
+
+      times:{
+
+        Keldi:
+          state.keldiTime,
+
+        Ketdi:
+          state.ketdiTime
+
+      }
+
+    });
+
+
+    toast(
+      "✅ Ishga kelganingiz belgilandi: " +
+      state.keldiTime
+    );
+
+
+    try{
+
+      if(tg &&
+         tg.HapticFeedback){
+
+        tg.HapticFeedback
+          .notificationOccurred(
+            "success"
+          );
+      }
+
+    }catch(e){}
+
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      "❌ " +
+      (error.message ||
+       "Joylashuvni olishda xatolik.")
+    );
+
+  }finally{
+
+    state.busy = false;
+
+    $("arrivalBtn").disabled =
+      state.keldi;
+
+    $("leaveBtn").disabled =
+      !state.keldi ||
+      state.ketdi;
+  }
+}
+
+
+/* =====================================================
+   KETDIM
+   ===================================================== */
+
+async function checkOut(){
+
+  if(state.busy) return;
+
+
+  if(!state.keldi){
+
+    toast(
+      "Avval «Ishga keldim»ni belgilang."
+    );
+
+    return;
+  }
+
+
+  if(state.ketdi){
+
+    toast(
+      "Siz bugun allaqachon ketgansiz."
+    );
+
+    return;
+  }
+
+
+  state.busy = true;
+
+  $("leaveBtn").disabled = true;
+
+  toast(
+    "🔴 Ishdan ketish qayd qilinmoqda..."
+  );
+
+
+  try{
+
+    /*
+      MUHIM:
+      BU YERDA GEOLOCATION YO'Q.
+      Ketishda GPS so'ralmaydi.
+    */
+
+    var result =
+      await api({
+
+        action:"checkin",
+
+        status:"Ketdi",
+
+        initData:initData
+
+      });
+
+
+    if(!result.ok){
+
+      if(result.error === "auth"){
+
+        showBlock(
+          "🔄",
+          "Sessiya eskirdi",
+          "Telegram botdan Web App'ni qayta oching."
+        );
+
+        return;
+      }
+
+
+      if(result.error === "need_arrival"){
+
+        toast(
+          "Avval ishga kelganingizni belgilang."
+        );
+
+        return;
+      }
+
+
+      if(result.error === "already"){
+
+        state.ketdi = true;
+
+        state.ketdiTime =
+          result.time || "";
+
+        renderAttendance({
+          times:{
+            Keldi:state.keldiTime,
+            Ketdi:state.ketdiTime
+          }
+        });
+
+        return;
+      }
+
+
+      throw new Error(
+        result.error || "server"
+      );
+    }
+
+
+    state.ketdi = true;
+
+    state.ketdiTime =
+      result.time || "";
+
+
+    state.worked =
+      result.worked ||
+      result.ishlagan ||
+      "";
+
+
+    renderAttendance({
+
+      times:{
+
+        Keldi:
+          state.keldiTime,
+
+        Ketdi:
+          state.ketdiTime
+
+      },
+
+      worked:
+        state.worked
+
+    });
+
+
+    toast(
+      "✅ Ishdan ketganingiz belgilandi: " +
+      state.ketdiTime
+    );
+
+
+    try{
+
+      if(tg &&
+         tg.HapticFeedback){
+
+        tg.HapticFeedback
+          .notificationOccurred(
+            "success"
+          );
+      }
+
+    }catch(e){}
+
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      "❌ " +
+      (error.message ||
+       "Serverda xatolik.")
+    );
+
+  }finally{
+
+    state.busy = false;
+
+    $("leaveBtn").disabled =
+      !state.keldi ||
+      state.ketdi;
+  }
+}
+
+
+/* =====================================================
+   ISHLAGAN VAQT
+   ===================================================== */
+
+function calculateWorked(){
+
+  if(
+    !state.keldiTime ||
+    !state.ketdiTime
+  ){
+
+    $("worked").textContent =
+      "0 soat 0 daqiqa";
+
+    return;
+  }
+
+
+  var start =
+    parseTime(state.keldiTime);
+
+  var end =
+    parseTime(state.ketdiTime);
+
+
+  if(
+    !start ||
+    !end ||
+    end <= start
+  ){
+
+    return;
+  }
+
+
+  var minutes =
+    Math.floor(
+      (end - start) / 60000
+    );
+
+
+  var hours =
+    Math.floor(minutes / 60);
+
+  var mins =
+    minutes % 60;
+
+
+  $("worked").textContent =
+    hours +
+    " soat " +
+    mins +
+    " daqiqa";
+}
+
+
+function parseTime(value){
+
+  var parts =
+    String(value)
+      .split(":")
+      .map(Number);
+
+
+  if(parts.length < 2){
+
+    return null;
+  }
+
+
+  var d =
+    new Date();
+
+
+  d.setHours(
+    parts[0],
+    parts[1],
+    0,
+    0
+  );
+
+
+  return d.getTime();
+}
+
+
+/* =====================================================
+   REAL-TIME ISHLAGAN VAQT
+   ===================================================== */
+
+setInterval(function(){
+
+  if(
+    state.keldi &&
+    !state.ketdi &&
+    state.keldiTime
+  ){
+
+    var start =
+      parseTime(
+        state.keldiTime
+      );
+
+    if(start){
+
+      var now =
+        new Date().getTime();
+
+      var minutes =
+        Math.max(
+          0,
+          Math.floor(
+            (now-start)/60000
+          )
+        );
+
+      var hours =
+        Math.floor(
+          minutes/60
+        );
+
+      var mins =
+        minutes%60;
+
+
+      $("worked").textContent =
+        hours +
+        " soat " +
+        mins +
+        " daqiqa";
+    }
+  }
+
+},60000);
+
+
+/* =====================================================
+   START
+   ===================================================== */
+
+function start(){
+
+  $("date").textContent =
+    "Bugun, " + today();
+
+
+  if(!telegramInit()){
+
+    return;
+  }
+
+
+  renderTelegramUser();
+
+
+  loadData();
+
+}
+
+
+/* =====================================================
+   VISIBILITY
+   ===================================================== */
+
+document.addEventListener(
+  "visibilitychange",
+  function(){
+
+    if(
+      !document.hidden &&
+      initData
+    ){
+
+      loadData();
+    }
+
+  }
+);
+
+
+start();
+
+</script>
+
+</body>
+</html>
+```
