@@ -1,1411 +1,2713 @@
-```html
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#f7f9ff">
-<title>Call Center — Davomat</title>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <title>Call Center</title>
 
-<style>
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-body{
-  margin:0;
-  min-height:100vh;
-  background:linear-gradient(180deg,#f7f9ff,#edf1ff);
-  color:#151b3b;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-.app{
-  max-width:520px;
-  margin:auto;
-  padding:25px 18px 120px;
-}
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #101828;
+      --muted: #667085;
+      --blue: #2563eb;
+      --blue-light: #eff6ff;
+      --green: #12b76a;
+      --green-light: #ecfdf3;
+      --red: #f04438;
+      --red-light: #fef3f2;
+      --orange: #f79009;
+      --orange-light: #fffaeb;
+      --border: #eaecf0;
+      --shadow: 0 8px 30px rgba(16, 24, 40, .06);
+      --radius: 20px;
+    }
 
-.header{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  margin-bottom:22px;
-}
+    body {
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
 
-.avatar{
-  width:64px;
-  height:64px;
-  border-radius:50%;
-  background:#e3e8ff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:23px;
-  font-weight:700;
-  color:#5364df;
-  overflow:hidden;
-}
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
 
-.avatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
+    button,
+    input,
+    textarea {
+      font-family: inherit;
+    }
 
-.name{
-  font-size:21px;
-  font-weight:700;
-}
+    button {
+      border: none;
+      cursor: pointer;
+    }
 
-.role{
-  margin-top:4px;
-  color:#7b84a8;
-  font-size:14px;
-}
+    /* =========================
+       APP
+    ========================= */
 
-.card{
-  background:white;
-  border-radius:24px;
-  padding:20px;
-  margin-bottom:15px;
-  box-shadow:0 7px 25px rgba(60,72,140,.09);
-}
+    #app {
+      width: 100%;
+      max-width: 520px;
+      min-height: 100vh;
+      margin: auto;
+      position: relative;
+      background: var(--bg);
+      padding-bottom: 100px;
+    }
 
-.date{
-  color:#7b84a8;
-  font-size:14px;
-  margin-bottom:8px;
-}
+    .page {
+      display: none;
+      padding: 20px 18px 30px;
+      animation: fadeIn .22s ease;
+    }
 
-.status{
-  font-size:19px;
-  font-weight:700;
-  margin-bottom:18px;
-}
+    .page.active {
+      display: block;
+    }
 
-.time-row{
-  display:flex;
-  gap:12px;
-}
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-.time-box{
-  flex:1;
-  background:#f7f8ff;
-  border-radius:18px;
-  padding:15px;
-}
+    /* =========================
+       HEADER
+    ========================= */
 
-.time-label{
-  color:#7b84a8;
-  font-size:13px;
-  margin-bottom:5px;
-}
+    .top-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
 
-.time{
-  font-size:22px;
-  font-weight:700;
-}
+    .hello {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
 
-.green{
-  color:#16a36a;
-}
+    .name {
+      font-size: 25px;
+      font-weight: 750;
+      letter-spacing: -.5px;
+    }
 
-.red{
-  color:#e5484d;
-}
+    .notification-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 15px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: var(--shadow);
+    }
 
-.blue{
-  color:#5364df;
-}
+    .notification-dot {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      border: 2px solid white;
+    }
 
-.buttons{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
+    /* =========================
+       STATUS CARD
+    ========================= */
 
-button{
-  border:0;
-  font-family:inherit;
-  cursor:pointer;
-}
+    .status-card {
+      background: linear-gradient(135deg, #172554, #1e40af);
+      color: white;
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 15px 35px rgba(30, 64, 175, .20);
+      margin-bottom: 18px;
+    }
 
-.action{
-  width:100%;
-  padding:17px;
-  border-radius:18px;
-  font-size:17px;
-  font-weight:700;
-  color:white;
-}
+    .status-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
 
-.arrival{
-  background:linear-gradient(135deg,#20b978,#11965e);
-}
+    .status-label {
+      font-size: 13px;
+      opacity: .72;
+    }
 
-.leave{
-  background:linear-gradient(135deg,#f05c61,#d9363e);
-}
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 5px;
+      font-size: 19px;
+      font-weight: 700;
+    }
 
-.action:disabled{
-  opacity:.45;
-}
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      background: #4ade80;
+      border-radius: 50%;
+      box-shadow: 0 0 0 5px rgba(74, 222, 128, .12);
+    }
 
-.info{
-  text-align:center;
-  color:#7b84a8;
-  font-size:13px;
-  line-height:1.5;
-}
+    .role-badge {
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.12);
+      font-size: 12px;
+      font-weight: 600;
+    }
 
-.loader{
-  text-align:center;
-  padding:25px;
-  color:#7b84a8;
-}
+    .arrival {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+    }
 
-.error{
-  background:#fff0f0;
-  color:#d9363e;
-  padding:15px;
-  border-radius:16px;
-  line-height:1.45;
-  margin-bottom:15px;
-  display:none;
-}
+    .arrival-label {
+      font-size: 12px;
+      opacity: .65;
+      margin-bottom: 5px;
+    }
 
-.toast{
-  position:fixed;
-  left:50%;
-  bottom:30px;
-  transform:translate(-50%,20px);
-  background:#151b3b;
-  color:white;
-  padding:12px 18px;
-  border-radius:15px;
-  opacity:0;
-  pointer-events:none;
-  transition:.25s;
-  z-index:100;
-  max-width:90%;
-  text-align:center;
-}
+    .arrival-time {
+      font-size: 29px;
+      font-weight: 750;
+      letter-spacing: -1px;
+    }
 
-.toast.show{
-  opacity:1;
-  transform:translate(-50%,0);
-}
+    .work-time {
+      font-size: 13px;
+      opacity: .72;
+    }
 
-.blocker{
-  position:fixed;
-  inset:0;
-  background:#f7f9ff;
-  z-index:200;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:25px;
-}
+    /* =========================
+       SECTION
+    ========================= */
 
-.block-card{
-  background:white;
-  padding:28px 22px;
-  border-radius:25px;
-  text-align:center;
-  max-width:380px;
-  width:100%;
-  box-shadow:0 10px 35px rgba(60,72,140,.12);
-}
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 25px 0 12px;
+    }
 
-.block-card .icon{
-  font-size:45px;
-}
+    .section-title h2 {
+      font-size: 17px;
+      font-weight: 750;
+    }
 
-.block-card h2{
-  margin:14px 0 8px;
-}
+    .section-title span {
+      font-size: 12px;
+      color: var(--blue);
+      font-weight: 600;
+    }
 
-.block-card p{
-  color:#7b84a8;
-  line-height:1.5;
-}
+    /* =========================
+       CARDS
+    ========================= */
 
-.reload{
-  background:#5364df;
-  color:white;
-  border-radius:14px;
-  padding:13px 22px;
-  font-size:16px;
-  font-weight:600;
-}
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
 
-.hidden{
-  display:none!important;
-}
-</style>
+    .task-card {
+      padding: 17px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 13px;
+      align-items: center;
+      transition: .2s;
+    }
+
+    .task-card:active {
+      transform: scale(.98);
+    }
+
+    .icon-box {
+      width: 43px;
+      height: 43px;
+      min-width: 43px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+    }
+
+    .blue-box {
+      background: var(--blue-light);
+    }
+
+    .green-box {
+      background: var(--green-light);
+    }
+
+    .orange-box {
+      background: var(--orange-light);
+    }
+
+    .red-box {
+      background: var(--red-light);
+    }
+
+    .task-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-name {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .task-meta {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .arrow {
+      color: #98a2b3;
+      font-size: 19px;
+    }
+
+    /* =========================
+       STATS GRID
+    ========================= */
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat-card {
+      padding: 17px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 25px;
+      font-weight: 750;
+      letter-spacing: -.5px;
+    }
+
+    .stat-extra {
+      font-size: 11px;
+      margin-top: 5px;
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    /* =========================
+       NEWS
+    ========================= */
+
+    .news-card {
+      padding: 16px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .news-icon {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border-radius: 13px;
+      background: #fff1f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .news-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .news-text {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .news-time {
+      font-size: 10px;
+      color: #98a2b3;
+      margin-top: 6px;
+    }
+
+    /* =========================
+       PAGE HEADER
+    ========================= */
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .back-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: white;
+      border: 1px solid var(--border);
+      font-size: 19px;
+    }
+
+    .page-header h1 {
+      font-size: 23px;
+      font-weight: 750;
+    }
+
+    /* =========================
+       ATTENDANCE
+    ========================= */
+
+    .attendance-summary {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .attendance-box {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 17px;
+    }
+
+    .attendance-number {
+      font-size: 26px;
+      font-weight: 750;
+      margin-top: 5px;
+    }
+
+    .attendance-label {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .attendance-list {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .attendance-row {
+      display: flex;
+      align-items: center;
+      padding: 15px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .attendance-row:last-child {
+      border-bottom: none;
+    }
+
+    .date-box {
+      width: 43px;
+      height: 43px;
+      border-radius: 13px;
+      background: #f2f4f7;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin-right: 12px;
+    }
+
+    .date-day {
+      font-size: 15px;
+      font-weight: 750;
+    }
+
+    .date-month {
+      font-size: 9px;
+      color: var(--muted);
+    }
+
+    .attendance-info {
+      flex: 1;
+    }
+
+    .attendance-date {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .attendance-times {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .attendance-status {
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .on-time {
+      color: var(--green);
+    }
+
+    .late {
+      color: var(--orange);
+    }
+
+    /* =========================
+       KNOWLEDGE
+    ========================= */
+
+    .search {
+      width: 100%;
+      height: 48px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: white;
+      padding: 0 16px;
+      outline: none;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    .search:focus {
+      border-color: #84adff;
+    }
+
+    .knowledge-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .knowledge-card {
+      padding: 18px;
+      min-height: 120px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .knowledge-icon {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+
+    .knowledge-title {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .knowledge-count {
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 5px;
+    }
+
+    /* =========================
+       AI
+    ========================= */
+
+    .ai-box {
+      background: linear-gradient(135deg, #172554, #1e3a8a);
+      color: white;
+      padding: 21px;
+      border-radius: 23px;
+      margin-bottom: 17px;
+    }
+
+    .ai-title {
+      font-size: 20px;
+      font-weight: 750;
+      margin-bottom: 7px;
+    }
+
+    .ai-description {
+      color: rgba(255,255,255,.7);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .chat {
+      min-height: 430px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-bottom: 80px;
+    }
+
+    .message {
+      max-width: 85%;
+      padding: 12px 14px;
+      border-radius: 17px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .message.ai {
+      background: white;
+      border: 1px solid var(--border);
+      align-self: flex-start;
+      border-bottom-left-radius: 5px;
+    }
+
+    .message.user {
+      background: var(--blue);
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 5px;
+    }
+
+    .ai-input {
+      position: fixed;
+      bottom: 78px;
+      width: calc(100% - 36px);
+      max-width: 484px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .ai-input input {
+      flex: 1;
+      height: 48px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 0 15px;
+      outline: none;
+    }
+
+    .send-btn {
+      width: 48px;
+      border-radius: 15px;
+      background: var(--blue);
+      color: white;
+      font-size: 18px;
+    }
+
+    /* =========================
+       STATISTICS
+    ========================= */
+
+    .big-stat {
+      padding: 21px;
+      margin-bottom: 12px;
+    }
+
+    .big-stat-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .big-number {
+      font-size: 37px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .progress {
+      height: 8px;
+      background: #eef2f6;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 78%;
+      background: var(--blue);
+      border-radius: 10px;
+    }
+
+    .ranking {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .ranking-header {
+      padding: 17px;
+      font-size: 15px;
+      font-weight: 750;
+    }
+
+    .rank-row {
+      display: flex;
+      align-items: center;
+      padding: 13px 17px;
+      border-top: 1px solid var(--border);
+    }
+
+    .rank-number {
+      width: 30px;
+      font-size: 15px;
+      font-weight: 750;
+    }
+
+    .rank-name {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .rank-score {
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    /* =========================
+       MENU OVERLAY
+    ========================= */
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .35);
+      backdrop-filter: blur(5px);
+      z-index: 90;
+      opacity: 0;
+      visibility: hidden;
+      transition: .25s;
+    }
+
+    .overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .menu-panel {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translate(-50%, 100%);
+      width: 100%;
+      max-width: 520px;
+      background: #fff;
+      border-radius: 28px 28px 0 0;
+      padding: 13px 18px 28px;
+      transition: .3s cubic-bezier(.2,.8,.2,1);
+      box-shadow: 0 -10px 50px rgba(16,24,40,.15);
+    }
+
+    .overlay.open .menu-panel {
+      transform: translate(-50%, 0);
+    }
+
+    .menu-handle {
+      width: 40px;
+      height: 4px;
+      background: #d0d5dd;
+      border-radius: 20px;
+      margin: 0 auto 20px;
+    }
+
+    .menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .menu-header h2 {
+      font-size: 20px;
+      font-weight: 750;
+    }
+
+    .menu-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: #f2f4f7;
+      font-size: 16px;
+    }
+
+    .menu-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 14px 8px;
+      background: transparent;
+      text-align: left;
+      border-radius: 14px;
+      margin-bottom: 3px;
+    }
+
+    .menu-item:active {
+      background: #f2f4f7;
+    }
+
+    .menu-icon {
+      width: 39px;
+      height: 39px;
+      border-radius: 12px;
+      background: #f2f4f7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .menu-name {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .menu-badge {
+      min-width: 21px;
+      height: 21px;
+      padding: 0 6px;
+      border-radius: 20px;
+      background: var(--red);
+      color: white;
+      font-size: 10px;
+      font-weight: 750;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* =========================
+       BOTTOM MENU BUTTON
+    ========================= */
+
+    .bottom-nav {
+      position: fixed;
+      z-index: 50;
+      bottom: 13px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 28px);
+      max-width: 492px;
+    }
+
+    .menu-main-btn {
+      width: 100%;
+      height: 59px;
+      border-radius: 20px;
+      background: rgba(17, 24, 39, .96);
+      color: white;
+      box-shadow: 0 10px 30px rgba(15,23,42,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      font-size: 14px;
+      font-weight: 700;
+      backdrop-filter: blur(10px);
+    }
+
+    .menu-main-icon {
+      font-size: 19px;
+    }
+
+    /* =========================
+       MODAL
+    ========================= */
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      background: rgba(15,23,42,.38);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: end;
+      justify-content: center;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-content {
+      width: 100%;
+      max-width: 520px;
+      background: white;
+      border-radius: 27px 27px 0 0;
+      padding: 22px 18px 28px;
+      max-height: 80vh;
+      overflow-y: auto;
+      animation: modalUp .25s ease;
+    }
+
+    @keyframes modalUp {
+      from {
+        transform: translateY(100%);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    .modal-close {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: #f2f4f7;
+      float: right;
+    }
+
+    .modal-title {
+      font-size: 21px;
+      font-weight: 750;
+      margin-bottom: 9px;
+    }
+
+    .modal-description {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 18px;
+    }
+
+    .primary-btn {
+      width: 100%;
+      height: 50px;
+      border-radius: 15px;
+      background: var(--blue);
+      color: white;
+      font-weight: 700;
+      margin-top: 20px;
+    }
+
+    /* =========================
+       TOAST
+    ========================= */
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 88px;
+      transform: translate(-50%, 20px);
+      z-index: 200;
+      background: #101828;
+      color: white;
+      padding: 12px 17px;
+      border-radius: 13px;
+      font-size: 12px;
+      opacity: 0;
+      visibility: hidden;
+      transition: .25s;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0);
+    }
+
+    /* =========================
+       PROFILE
+    ========================= */
+
+    .profile-card {
+      text-align: center;
+      padding: 27px 18px;
+      margin-bottom: 13px;
+    }
+
+    .avatar {
+      width: 75px;
+      height: 75px;
+      margin: auto;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 29px;
+      font-weight: 800;
+      color: #1d4ed8;
+      margin-bottom: 13px;
+    }
+
+    .profile-name {
+      font-size: 19px;
+      font-weight: 750;
+    }
+
+    .profile-role {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .profile-item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      padding: 16px;
+      margin-bottom: 9px;
+    }
+
+    .profile-item-label {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .profile-item-value {
+      margin-top: 5px;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    @media (min-width: 700px) {
+      body {
+        background: #e9eef5;
+      }
+
+      #app {
+        box-shadow: 0 0 60px rgba(0,0,0,.08);
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="app">
+<div id="app">
 
-  <div class="header">
-    <div class="avatar" id="avatar">?</div>
+  <!-- =========================
+       HOME
+  ========================== -->
 
-    <div>
-      <div class="name" id="name">Yuklanmoqda...</div>
-      <div class="role" id="role">—</div>
-    </div>
-  </div>
+  <section id="home" class="page active">
 
-  <div class="error" id="error"></div>
-
-  <div class="card">
-
-    <div class="date" id="date">Bugun</div>
-
-    <div class="status" id="status">
-      Davomat yuklanmoqda...
-    </div>
-
-    <div class="time-row">
-
-      <div class="time-box">
-        <div class="time-label">🟢 Ishga keldi</div>
-        <div class="time green" id="arrival">—</div>
+    <div class="top-header">
+      <div>
+        <div class="hello">Xayrli kun 👋</div>
+        <div class="name">Daler</div>
       </div>
 
-      <div class="time-box">
-        <div class="time-label">🔴 Ishdan ketdi</div>
-        <div class="time red" id="leave">—</div>
+      <button
+        class="notification-btn"
+        onclick="openPage('news')"
+      >
+        🔔
+        <span class="notification-dot"></span>
+      </button>
+    </div>
+
+    <div class="status-card">
+
+      <div class="status-top">
+
+        <div>
+          <div class="status-label">Bugungi holat</div>
+
+          <div class="status">
+            <span class="status-dot"></span>
+            ISHDA
+          </div>
+        </div>
+
+        <div class="role-badge">
+          Pervichka
+        </div>
+
+      </div>
+
+      <div class="arrival">
+
+        <div>
+          <div class="arrival-label">
+            Ishga kelgan vaqt
+          </div>
+
+          <div class="arrival-time">
+            09:02
+          </div>
+        </div>
+
+        <div class="work-time">
+          7 soat 24 daqiqa
+        </div>
+
       </div>
 
     </div>
 
-  </div>
 
-  <div class="card">
+    <!-- TASKS -->
 
-    <div class="buttons">
-
-      <button
-        class="action arrival"
-        id="arrivalBtn"
-        onclick="checkIn()">
-        🟢 ISHGA KELDIM
-      </button>
-
-      <button
-        class="action leave"
-        id="leaveBtn"
-        onclick="checkOut()"
-        disabled>
-        🔴 ISHDAN KETDIM
-      </button>
-
+    <div class="section-title">
+      <h2>Bugungi topshiriqlar</h2>
+      <span onclick="openPage('tasks')">Barchasi</span>
     </div>
-
-  </div>
-
-  <div class="card">
-
-    <div class="time-label">⏱ Ishlagan vaqt</div>
 
     <div
-      class="blue"
-      id="worked"
-      style="font-size:28px;font-weight:700;margin-top:7px;">
-      0 soat 0 daqiqa
+      class="task-card card"
+      onclick="openTask('Yangi mijozlar bilan bog‘lanish')"
+    >
+
+      <div class="icon-box blue-box">
+        📞
+      </div>
+
+      <div class="task-info">
+
+        <div class="task-name">
+          Yangi mijozlar bilan bog‘lanish
+        </div>
+
+        <div class="task-meta">
+          12 / 20 bajarildi · Bugun 18:00
+        </div>
+
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
     </div>
 
-  </div>
 
-  <div class="card info">
-    🏢 Ishga kelishda joylashuv tekshiriladi.<br>
-    Ishdan ketishda joylashuv qayta so'ralmaydi.
-  </div>
+    <div
+      class="task-card card"
+      onclick="openTask('Universitetlar bazasini tekshirish')"
+    >
 
-</div>
+      <div class="icon-box orange-box">
+        📚
+      </div>
 
-<div class="toast" id="toast"></div>
+      <div class="task-info">
 
-<div class="blocker hidden" id="blocker">
+        <div class="task-name">
+          Universitetlar bazasini tekshirish
+        </div>
 
-  <div class="block-card">
+        <div class="task-meta">
+          60% · Bugun 20:00
+        </div>
 
-    <div class="icon" id="blockIcon">📱</div>
+      </div>
 
-    <h2 id="blockTitle">
-      Telegram orqali oching
-    </h2>
+      <div class="arrow">
+        ›
+      </div>
 
-    <p id="blockText">
-      Ushbu ilovani Telegram bot ichidan oching.
-    </p>
+    </div>
+
+
+    <!-- STATISTICS -->
+
+    <div class="section-title">
+      <h2>Bugungi natija</h2>
+      <span onclick="openPage('stats')">Batafsil</span>
+    </div>
+
+    <div class="stats-grid">
+
+      <div class="stat-card card">
+
+        <div class="stat-label">
+          Suhbatlar
+        </div>
+
+        <div class="stat-value">
+          42
+        </div>
+
+        <div class="stat-extra">
+          ↑ 12% bugunga
+        </div>
+
+      </div>
+
+      <div class="stat-card card">
+
+        <div class="stat-label">
+          Sifat
+        </div>
+
+        <div class="stat-value">
+          87%
+        </div>
+
+        <div class="stat-extra">
+          KPI yaxshi
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- NEWS -->
+
+    <div class="section-title">
+      <h2>Yangiliklar</h2>
+      <span onclick="openPage('news')">
+        3 ta yangi
+      </span>
+    </div>
+
+    <div
+      class="news-card card"
+      onclick="openPage('news')"
+    >
+
+      <div class="news-icon">
+        🔔
+      </div>
+
+      <div>
+
+        <div class="news-title">
+          Yangi ish grafigi
+        </div>
+
+        <div class="news-text">
+          Bugundan boshlab ish grafigida
+          o‘zgarishlar mavjud.
+        </div>
+
+        <div class="news-time">
+          2 soat oldin
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       TASKS
+  ========================== -->
+
+  <section id="tasks" class="page">
+
+    <div class="page-header">
+
+      <button
+        class="back-btn"
+        onclick="openPage('home')"
+      >
+        ←
+      </button>
+
+      <h1>Tasks</h1>
+
+    </div>
+
+
+    <div class="section-title">
+      <h2>Bugungi topshiriqlar</h2>
+      <span>3 ta</span>
+    </div>
+
+
+    <div
+      class="task-card card"
+      onclick="openTask('Yangi mijozlar bilan bog‘lanish')"
+    >
+
+      <div class="icon-box blue-box">
+        📞
+      </div>
+
+      <div class="task-info">
+
+        <div class="task-name">
+          Yangi mijozlar bilan bog‘lanish
+        </div>
+
+        <div class="task-meta">
+          12 / 20 · Deadline 18:00
+        </div>
+
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </div>
+
+
+    <div
+      class="task-card card"
+      onclick="openTask('Universitetlar bazasini tekshirish')"
+    >
+
+      <div class="icon-box orange-box">
+        📚
+      </div>
+
+      <div class="task-info">
+
+        <div class="task-name">
+          Universitetlar bazasini tekshirish
+        </div>
+
+        <div class="task-meta">
+          60% · Deadline 20:00
+        </div>
+
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </div>
+
+
+    <div
+      class="task-card card"
+      onclick="openTask('Haftalik KPI rejasini bajarish')"
+    >
+
+      <div class="icon-box green-box">
+        🎯
+      </div>
+
+      <div class="task-info">
+
+        <div class="task-name">
+          Haftalik KPI rejasini bajarish
+        </div>
+
+        <div class="task-meta">
+          78% · 250 ta suhbat
+        </div>
+
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       ATTENDANCE
+  ========================== -->
+
+  <section id="attendance" class="page">
+
+    <div class="page-header">
+
+      <button
+        class="back-btn"
+        onclick="openPage('home')"
+      >
+        ←
+      </button>
+
+      <h1>Davomat</h1>
+
+    </div>
+
+
+    <div class="attendance-summary">
+
+      <div class="attendance-box">
+
+        <div class="attendance-label">
+          Ishlagan kunlar
+        </div>
+
+        <div class="attendance-number">
+          22
+        </div>
+
+      </div>
+
+      <div class="attendance-box">
+
+        <div class="attendance-label">
+          Kechikishlar
+        </div>
+
+        <div class="attendance-number">
+          3
+        </div>
+
+      </div>
+
+      <div class="attendance-box">
+
+        <div class="attendance-label">
+          Erta ketish
+        </div>
+
+        <div class="attendance-number">
+          1
+        </div>
+
+      </div>
+
+      <div class="attendance-box">
+
+        <div class="attendance-label">
+          Dam olish
+        </div>
+
+        <div class="attendance-number">
+          4
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="section-title">
+      <h2>Sentabr 2026</h2>
+    </div>
+
+
+    <div class="attendance-list">
+
+      <div class="attendance-row">
+
+        <div class="date-box">
+          <div class="date-day">30</div>
+          <div class="date-month">SEP</div>
+        </div>
+
+        <div class="attendance-info">
+          <div class="attendance-date">
+            Bugun
+          </div>
+
+          <div class="attendance-times">
+            09:02 → Hozirda ishda
+          </div>
+        </div>
+
+        <div class="attendance-status on-time">
+          Ishda
+        </div>
+
+      </div>
+
+
+      <div class="attendance-row">
+
+        <div class="date-box">
+          <div class="date-day">29</div>
+          <div class="date-month">SEP</div>
+        </div>
+
+        <div class="attendance-info">
+          <div class="attendance-date">
+            Seshanba
+          </div>
+
+          <div class="attendance-times">
+            09:01 → 18:05 · 9:04
+          </div>
+        </div>
+
+        <div class="attendance-status on-time">
+          ✓
+        </div>
+
+      </div>
+
+
+      <div class="attendance-row">
+
+        <div class="date-box">
+          <div class="date-day">28</div>
+          <div class="date-month">SEP</div>
+        </div>
+
+        <div class="attendance-info">
+          <div class="attendance-date">
+            Dushanba
+          </div>
+
+          <div class="attendance-times">
+            09:17 → 18:00 · 8:43
+          </div>
+        </div>
+
+        <div class="attendance-status late">
+          Kechikdi
+        </div>
+
+      </div>
+
+
+      <div class="attendance-row">
+
+        <div class="date-box">
+          <div class="date-day">27</div>
+          <div class="date-month">SEP</div>
+        </div>
+
+        <div class="attendance-info">
+          <div class="attendance-date">
+            Yakshanba
+          </div>
+
+          <div class="attendance-times">
+            Dam olish kuni
+          </div>
+        </div>
+
+        <div class="attendance-status">
+          🔵
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       KNOWLEDGE
+  ========================== -->
+
+  <section id="knowledge" class="page">
+
+    <div class="page-header">
+
+      <button
+        class="back-btn"
+        onclick="openPage('home')"
+      >
+        ←
+      </button>
+
+      <h1>Ma'lumotlar</h1>
+
+    </div>
+
+
+    <input
+      class="search"
+      placeholder="🔎  Qidirish..."
+      oninput="searchKnowledge(this.value)"
+    >
+
+
+    <div class="knowledge-grid" id="knowledgeGrid">
+
+      <div class="knowledge-card">
+
+        <div class="knowledge-icon">
+          🎓
+        </div>
+
+        <div class="knowledge-title">
+          Universitetlar
+        </div>
+
+        <div class="knowledge-count">
+          24 ta ma'lumot
+        </div>
+
+      </div>
+
+
+      <div class="knowledge-card">
+
+        <div class="knowledge-icon">
+          💰
+        </div>
+
+        <div class="knowledge-title">
+          Narxlar
+        </div>
+
+        <div class="knowledge-count">
+          18 ta ma'lumot
+        </div>
+
+      </div>
+
+
+      <div class="knowledge-card">
+
+        <div class="knowledge-icon">
+          📞
+        </div>
+
+        <div class="knowledge-title">
+          Scriptlar
+        </div>
+
+        <div class="knowledge-count">
+          12 ta script
+        </div>
+
+      </div>
+
+
+      <div class="knowledge-card">
+
+        <div class="knowledge-icon">
+          📍
+        </div>
+
+        <div class="knowledge-title">
+          Lokatsiyalar
+        </div>
+
+        <div class="knowledge-count">
+          31 ta lokatsiya
+        </div>
+
+      </div>
+
+
+      <div class="knowledge-card">
+
+        <div class="knowledge-icon">
+          📖
+        </div>
+
+        <div class="knowledge-title">
+          Qo'llanmalar
+        </div>
+
+        <div class="knowledge-count">
+          9 ta fayl
+        </div>
+
+      </div>
+
+
+      <div class="knowledge-card">
+
+        <div class="knowledge-icon">
+          ❓
+        </div>
+
+        <div class="knowledge-title">
+          FAQ
+        </div>
+
+        <div class="knowledge-count">
+          47 ta savol
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       AI
+  ========================== -->
+
+  <section id="ai" class="page">
+
+    <div class="page-header">
+
+      <button
+        class="back-btn"
+        onclick="openPage('home')"
+      >
+        ←
+      </button>
+
+      <h1>AI Assistant</h1>
+
+    </div>
+
+
+    <div class="ai-box">
+
+      <div class="ai-title">
+        ✨ Call Center AI
+      </div>
+
+      <div class="ai-description">
+        Ish bo‘yicha tushunmagan narsangizni
+        so‘rang. AI ichki ma'lumotlar bazasi
+        asosida yordam beradi.
+      </div>
+
+    </div>
+
+
+    <div class="chat" id="chat">
+
+      <div class="message ai">
+        Assalomu alaykum! 👋
+        Men Call Center AI yordamchisiman.
+        Sizga qanday yordam berishim mumkin?
+      </div>
+
+      <div class="message user">
+        Mijoz narx qimmat deyapti. Nima deb javob beraman?
+      </div>
+
+      <div class="message ai">
+        Avvalo mijozning e'tirozini tushunishga
+        harakat qiling. Keyin xizmatning afzalliklarini
+        tushuntiring va mavjud variantlarni taklif qiling.
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       STATISTICS
+  ========================== -->
+
+  <section id="stats" class="page">
+
+    <div class="page-header">
+
+      <button
+        class="back-btn"
+        onclick="openPage('home')"
+      >
+        ←
+      </button>
+
+      <h1>Statistika</h1>
+
+    </div>
+
+
+    <div class="big-stat card">
+
+      <div class="big-stat-top">
+
+        <div>
+          <div class="stat-label">
+            Haftalik KPI
+          </div>
+
+          <div class="big-number">
+            78%
+          </div>
+        </div>
+
+        <div>
+          🎯
+        </div>
+
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar"></div>
+      </div>
+
+    </div>
+
+
+    <div class="stats-grid">
+
+      <div class="stat-card card">
+
+        <div class="stat-label">
+          Suhbatlar
+        </div>
+
+        <div class="stat-value">
+          426
+        </div>
+
+        <div class="stat-extra">
+          Bu hafta
+        </div>
+
+      </div>
+
+      <div class="stat-card card">
+
+        <div class="stat-label">
+          Sifatli
+        </div>
+
+        <div class="stat-value">
+          371
+        </div>
+
+        <div class="stat-extra">
+          87%
+        </div>
+
+      </div>
+
+      <div class="stat-card card">
+
+        <div class="stat-label">
+          O'rtacha suhbat
+        </div>
+
+        <div class="stat-value">
+          4:32
+        </div>
+
+      </div>
+
+      <div class="stat-card card">
+
+        <div class="stat-label">
+          KPI rejasi
+        </div>
+
+        <div class="stat-value">
+          250
+        </div>
+
+        <div class="stat-extra">
+          426 bajarildi
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="section-title">
+      <h2>Haftalik Top 3</h2>
+    </div>
+
+
+    <div class="ranking">
+
+      <div class="ranking-header">
+        Operatorlar
+      </div>
+
+      <div class="rank-row">
+
+        <div class="rank-number">
+          🥇
+        </div>
+
+        <div class="rank-name">
+          Operator A
+        </div>
+
+        <div class="rank-score">
+          94%
+        </div>
+
+      </div>
+
+      <div class="rank-row">
+
+        <div class="rank-number">
+          🥈
+        </div>
+
+        <div class="rank-name">
+          Operator B
+        </div>
+
+        <div class="rank-score">
+          91%
+        </div>
+
+      </div>
+
+      <div class="rank-row">
+
+        <div class="rank-number">
+          🥉
+        </div>
+
+        <div class="rank-name">
+          Operator C
+        </div>
+
+        <div class="rank-score">
+          88%
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       NEWS
+  ========================== -->
+
+  <section id="news" class="page">
+
+    <div class="page-header">
+
+      <button
+        class="back-btn"
+        onclick="openPage('home')"
+      >
+        ←
+      </button>
+
+      <h1>Yangiliklar</h1>
+
+    </div>
+
+
+    <div class="news-card card">
+
+      <div class="news-icon">
+        🔴
+      </div>
+
+      <div>
+
+        <div class="news-title">
+          Yangi ish grafigi
+        </div>
+
+        <div class="news-text">
+          Bugundan boshlab yangi ish grafigi
+          kuchga kiradi.
+        </div>
+
+        <div class="news-time">
+          2 soat oldin
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="news-card card">
+
+      <div class="news-icon">
+        📢
+      </div>
+
+      <div>
+
+        <div class="news-title">
+          Yangi script qo'shildi
+        </div>
+
+        <div class="news-text">
+          Operatorlar uchun yangi mijoz bilan
+          gaplashish scripti yuklandi.
+        </div>
+
+        <div class="news-time">
+          4 soat oldin
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="news-card card">
+
+      <div class="news-icon">
+        🎯
+      </div>
+
+      <div>
+
+        <div class="news-title">
+          KPI yangilandi
+        </div>
+
+        <div class="news-text">
+          Ushbu hafta uchun KPI talablari
+          yangilandi.
+        </div>
+
+        <div class="news-time">
+          Kecha
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       PROFILE
+  ========================== -->
+
+  <section id="profile" class="page">
+
+    <div class="page-header">
+
+      <button
+        class="back-btn"
+        onclick="openPage('home')"
+      >
+        ←
+      </button>
+
+      <h1>Profil</h1>
+
+    </div>
+
+
+    <div class="profile-card card">
+
+      <div class="avatar">
+        D
+      </div>
+
+      <div class="profile-name">
+        Daler Chuliyev
+      </div>
+
+      <div class="profile-role">
+        Pervichka · Aktiv
+      </div>
+
+    </div>
+
+
+    <div class="profile-item">
+
+      <div class="profile-item-label">
+        F.I.Sh
+      </div>
+
+      <div class="profile-item-value">
+        Daler Chuliyev
+      </div>
+
+    </div>
+
+
+    <div class="profile-item">
+
+      <div class="profile-item-label">
+        Lavozim
+      </div>
+
+      <div class="profile-item-value">
+        Pervichka
+      </div>
+
+    </div>
+
+
+    <div class="profile-item">
+
+      <div class="profile-item-label">
+        Telegram
+      </div>
+
+      <div class="profile-item-value">
+        Telegram account
+      </div>
+
+    </div>
+
+
+    <div class="profile-item">
+
+      <div class="profile-item-label">
+        KPI
+      </div>
+
+      <div class="profile-item-value">
+        87%
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       BOTTOM BUTTON
+  ========================== -->
+
+  <div class="bottom-nav">
 
     <button
-      class="reload"
-      onclick="location.reload()">
-      Qayta yuklash
+      class="menu-main-btn"
+      onclick="openMenu()"
+    >
+
+      <span class="menu-main-icon">
+        ☰
+      </span>
+
+      MENU
+
     </button>
 
   </div>
 
 </div>
 
+
+<!-- =========================
+     MENU
+========================== -->
+
+<div
+  id="overlay"
+  class="overlay"
+  onclick="closeMenu(event)"
+>
+
+  <div
+    class="menu-panel"
+    onclick="event.stopPropagation()"
+  >
+
+    <div class="menu-handle"></div>
+
+    <div class="menu-header">
+
+      <h2>Menu</h2>
+
+      <button
+        class="menu-close"
+        onclick="closeMenu()"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <button
+      class="menu-item"
+      onclick="menuNavigate('tasks')"
+    >
+
+      <div class="menu-icon">
+        📋
+      </div>
+
+      <div class="menu-name">
+        Tasks
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </button>
+
+
+    <button
+      class="menu-item"
+      onclick="menuNavigate('attendance')"
+    >
+
+      <div class="menu-icon">
+        🕐
+      </div>
+
+      <div class="menu-name">
+        Davomat
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </button>
+
+
+    <button
+      class="menu-item"
+      onclick="menuNavigate('knowledge')"
+    >
+
+      <div class="menu-icon">
+        📚
+      </div>
+
+      <div class="menu-name">
+        Ma'lumotlar
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </button>
+
+
+    <button
+      class="menu-item"
+      onclick="menuNavigate('ai')"
+    >
+
+      <div class="menu-icon">
+        ✨
+      </div>
+
+      <div class="menu-name">
+        AI Assistant
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </button>
+
+
+    <button
+      class="menu-item"
+      onclick="menuNavigate('stats')"
+    >
+
+      <div class="menu-icon">
+        📊
+      </div>
+
+      <div class="menu-name">
+        Statistika
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </button>
+
+
+    <button
+      class="menu-item"
+      onclick="menuNavigate('news')"
+    >
+
+      <div class="menu-icon">
+        🔔
+      </div>
+
+      <div class="menu-name">
+        Yangiliklar
+      </div>
+
+      <div class="menu-badge">
+        3
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </button>
+
+
+    <button
+      class="menu-item"
+      onclick="menuNavigate('profile')"
+    >
+
+      <div class="menu-icon">
+        👤
+      </div>
+
+      <div class="menu-name">
+        Profil
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     TASK MODAL
+========================== -->
+
+<div
+  id="taskModal"
+  class="modal"
+  onclick="closeTask(event)"
+>
+
+  <div
+    class="modal-content"
+    onclick="event.stopPropagation()"
+  >
+
+    <button
+      class="modal-close"
+      onclick="closeTask()"
+    >
+      ✕
+    </button>
+
+    <div id="modalTaskTitle" class="modal-title">
+      Task
+    </div>
+
+    <div class="task-meta">
+      Admin tomonidan berilgan · Bugun 18:00
+    </div>
+
+    <div class="modal-description">
+
+      Ushbu topshiriq bo‘yicha barcha yangi
+      mijozlar bilan bog‘lanish kerak.
+
+      <br><br>
+
+      📎 Mijozlar bazasi.xlsx
+
+      <br>
+
+      🔗 Ishlash uchun CRM
+
+      <br><br>
+
+      <b>Reja:</b> 20 ta suhbat
+
+    </div>
+
+    <button
+      class="primary-btn"
+      onclick="completeTask()"
+    >
+      ✓ TOPSHIRIQNI BAJARDIM
+    </button>
+
+  </div>
+
+</div>
+
+
+<div id="toast" class="toast"></div>
+
+
 <script>
 
-"use strict";
+  /* =========================
+     TELEGRAM
+  ========================== */
 
-/* =====================================================
-   GOOGLE APPS SCRIPT API
-   ===================================================== */
+  let tg = null;
 
-var API =
-"https://script.google.com/macros/s/AKfycbyM3BhwYuxWxEfjC5emg_MqAG7YBaHCpqetnjwANKSLp4U2DRk-5ZfGNSw3peOiWK5K/exec";
+  function telegramInit() {
 
+    tg =
+      window.Telegram &&
+      window.Telegram.WebApp
+        ? window.Telegram.WebApp
+        : null;
 
-/* =====================================================
-   TELEGRAM
-   ===================================================== */
-
-var tg =
-window.Telegram &&
-window.Telegram.WebApp
-  ? window.Telegram.WebApp
-  : null;
-
-var initData =
-tg ? (tg.initData || "") : "";
-
-var tgUser =
-tg &&
-tg.initDataUnsafe &&
-tg.initDataUnsafe.user
-  ? tg.initDataUnsafe.user
-  : null;
-
-
-/* =====================================================
-   STATE
-   ===================================================== */
-
-var state = {
-  busy:false,
-  keldi:false,
-  ketdi:false,
-  keldiTime:"",
-  ketdiTime:"",
-  worked:"",
-  profile:null
-};
-
-
-/* =====================================================
-   HELPERS
-   ===================================================== */
-
-function $(id){
-  return document.getElementById(id);
-}
-
-
-function toast(message){
-
-  var el = $("toast");
-
-  el.textContent = message;
-
-  el.classList.add("show");
-
-  setTimeout(function(){
-    el.classList.remove("show");
-  },3000);
-}
-
-
-function showError(message){
-
-  var el = $("error");
-
-  el.textContent = message;
-
-  el.style.display = "block";
-}
-
-
-function hideError(){
-
-  $("error").style.display = "none";
-}
-
-
-function initials(name){
-
-  if(!name) return "?";
-
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0,2)
-    .map(function(x){
-      return x.charAt(0).toUpperCase();
-    })
-    .join("");
-}
-
-
-function today(){
-
-  var d = new Date();
-
-  var months = [
-    "yanvar",
-    "fevral",
-    "mart",
-    "aprel",
-    "may",
-    "iyun",
-    "iyul",
-    "avgust",
-    "sentabr",
-    "oktabr",
-    "noyabr",
-    "dekabr"
-  ];
-
-  return (
-    d.getDate() +
-    "-" +
-    months[d.getMonth()] +
-    "-" +
-    d.getFullYear()
-  );
-}
-
-
-/* =====================================================
-   TELEGRAM INIT
-   ===================================================== */
-
-function telegramInit(){
-
-  if(!tg){
-
-    showBlock(
-      "📱",
-      "Telegram orqali oching",
-      "Ilovani Telegram bot ichidan oching."
-    );
-
-    return false;
-  }
-
-  try{
-
-    tg.ready();
-
-    tg.expand();
-
-    if(tg.setHeaderColor){
-      tg.setHeaderColor("#f7f9ff");
-    }
-
-    if(tg.setBackgroundColor){
-      tg.setBackgroundColor("#f7f9ff");
-    }
-
-  }catch(e){}
-
-  if(!initData){
-
-    showBlock(
-      "🔒",
-      "Sessiya topilmadi",
-      "Ilovani Telegram bot ichidan qayta oching."
-    );
-
-    return false;
-  }
-
-  return true;
-}
-
-
-function showBlock(icon,title,text){
-
-  $("blockIcon").textContent = icon;
-
-  $("blockTitle").textContent = title;
-
-  $("blockText").textContent = text;
-
-  $("blocker").classList.remove("hidden");
-}
-
-
-/* =====================================================
-   PROFILE UI
-   ===================================================== */
-
-function renderTelegramUser(){
-
-  if(!tgUser) return;
-
-  var fullName =
-    ((tgUser.first_name || "") +
-    " " +
-    (tgUser.last_name || ""))
-    .trim();
-
-  $("name").textContent =
-    fullName || "Xodim";
-
-  $("avatar").textContent =
-    initials(fullName);
-
-  if(tgUser.photo_url){
-
-    var img = new Image();
-
-    img.src = tgUser.photo_url;
-
-    img.onload = function(){
-
-      $("avatar").innerHTML = "";
-
-      $("avatar").appendChild(img);
-
-    };
-
-  }
-}
-
-
-function renderProfile(data){
-
-  if(!data) return;
-
-  var name =
-    data.ism ||
-    data.name ||
-    data.fio ||
-    "";
-
-  var role =
-    data.lavozim ||
-    data.role ||
-    "";
-
-  if(name){
-    $("name").textContent = name;
-    $("avatar").textContent = initials(name);
-  }
-
-  if(role){
-    $("role").textContent = role;
-  }
-
-  state.profile = data;
-
-  renderAttendance(data);
-}
-
-
-/* =====================================================
-   ATTENDANCE UI
-   ===================================================== */
-
-function renderAttendance(data){
-
-  var times =
-    data.times ||
-    data.davomat ||
-    {};
-
-  state.keldiTime =
-    times.Keldi ||
-    times.keldi ||
-    data.keldi ||
-    data.keldiTime ||
-    "";
-
-  state.ketdiTime =
-    times.Ketdi ||
-    times.ketdi ||
-    data.ketdi ||
-    data.ketdiTime ||
-    "";
-
-  state.keldi = !!state.keldiTime;
-
-  state.ketdi = !!state.ketdiTime;
-
-  state.worked =
-    data.worked ||
-    data.ishlagan ||
-    data.ishlaganVaqt ||
-    "";
-
-
-  $("arrival").textContent =
-    state.keldiTime || "—";
-
-  $("leave").textContent =
-    state.ketdiTime || "—";
-
-
-  if(state.keldi && !state.ketdi){
-
-    $("status").textContent =
-      "🟢 Hozir ishda";
-
-  }else if(state.keldi && state.ketdi){
-
-    $("status").textContent =
-      "🔴 Bugungi ish yakunlangan";
-
-  }else{
-
-    $("status").textContent =
-      "⚪ Hali ishga kelmagan";
-  }
-
-
-  if(state.worked){
-
-    $("worked").textContent =
-      state.worked;
-
-  }else if(state.keldiTime && state.ketdiTime){
-
-    calculateWorked();
-
-  }else{
-
-    $("worked").textContent =
-      "0 soat 0 daqiqa";
-  }
-
-
-  $("arrivalBtn").disabled =
-    state.keldi;
-
-  $("leaveBtn").disabled =
-    !state.keldi || state.ketdi;
-}
-
-
-/* =====================================================
-   API
-   ===================================================== */
-
-async function api(params){
-
-  var query =
-    new URLSearchParams(params).toString();
-
-  var response =
-    await fetch(
-      API + "?" + query,
-      {
-        method:"GET",
-        redirect:"follow",
-        cache:"no-store"
-      }
-    );
-
-  if(!response.ok){
-
-    throw new Error(
-      "HTTP " + response.status
-    );
-  }
-
-  return await response.json();
-}
-
-
-/* =====================================================
-   LOAD PROFILE / ATTENDANCE
-   ===================================================== */
-
-async function loadData(){
-
-  hideError();
-
-  try{
-
-    var result = await api({
-      action:"profile",
-      initData:initData
-    });
-
-
-    if(!result.ok){
-
-      if(result.error === "auth"){
-
-        showBlock(
-          "🔄",
-          "Sessiya eskirdi",
-          "Telegram botga qayting va Web App'ni qayta oching."
-        );
-
-        return;
-      }
-
-
-      if(result.error === "not_registered"){
-
-        showBlock(
-          "📝",
-          "Ro'yxatdan o'tilmagansiz",
-          "Avval Telegram bot orqali ro'yxatdan o'ting."
-        );
-
-        return;
-      }
-
-
-      if(result.error === "not_approved"){
-
-        showBlock(
-          "⏳",
-          "Tasdiq kutilmoqda",
-          "CEO hali arizangizni tasdiqlamagan."
-        );
-
-        return;
-      }
-
-
-      throw new Error(
-        result.error || "server"
-      );
-    }
-
-
-    renderProfile(result);
-
-  }catch(error){
-
-    console.error(error);
-
-    showError(
-      "Server bilan aloqa o'rnatib bo'lmadi. Internetni tekshiring va qayta urinib ko'ring."
-    );
-  }
-}
-
-
-/* =====================================================
-   LOCATION
-   ===================================================== */
-
-function getLocation(){
-
-  return new Promise(function(resolve,reject){
-
-    if(!navigator.geolocation){
-
-      reject(
-        new Error("Geolokatsiya qo'llab-quvvatlanmaydi.")
-      );
-
+    if (!tg) {
+      console.log("Telegram WebApp topilmadi.");
       return;
     }
 
+    try {
+      tg.ready();
+      tg.expand();
 
-    navigator.geolocation.getCurrentPosition(
-
-      function(position){
-
-        resolve({
-
-          lat:position.coords.latitude,
-
-          lng:position.coords.longitude,
-
-          accuracy:position.coords.accuracy
-
-        });
-
-      },
-
-      function(error){
-
-        if(error.code === 1){
-
-          reject(
-            new Error(
-              "Lokatsiyaga ruxsat berilmadi."
-            )
-          );
-
-        }else if(error.code === 2){
-
-          reject(
-            new Error(
-              "Joylashuv aniqlanmadi."
-            )
-          );
-
-        }else{
-
-          reject(
-            new Error(
-              "Joylashuvni olish vaqti tugadi."
-            )
-          );
-        }
-
-      },
-
-      {
-        enableHighAccuracy:true,
-        timeout:15000,
-        maximumAge:0
+      if (tg.setHeaderColor) {
+        tg.setHeaderColor("#f5f7fb");
       }
 
-    );
+      if (tg.setBackgroundColor) {
+        tg.setBackgroundColor("#f5f7fb");
+      }
 
-  });
-}
-
-
-/* =====================================================
-   KELDIM
-   ===================================================== */
-
-async function checkIn(){
-
-  if(state.busy) return;
-
-  if(state.keldi){
-
-    toast(
-      "Siz bugun allaqachon kelgansiz."
-    );
-
-    return;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
 
-  state.busy = true;
+  /* =========================
+     PAGE NAVIGATION
+  ========================== */
 
-  $("arrivalBtn").disabled = true;
+  function openPage(page) {
 
-  toast("📍 Joylashuvingiz aniqlanmoqda...");
+    document
+      .querySelectorAll(".page")
+      .forEach(function(section) {
 
-
-  try{
-
-    var location =
-      await getLocation();
-
-
-    toast(
-      "📍 Joylashuv tekshirilmoqda..."
-    );
-
-
-    var result =
-      await api({
-
-        action:"checkin",
-
-        status:"Keldi",
-
-        lat:location.lat,
-
-        lng:location.lng,
-
-        accuracy:location.accuracy,
-
-        initData:initData
-
-      });
-
-
-    if(!result.ok){
-
-      if(result.error === "auth"){
-
-        showBlock(
-          "🔄",
-          "Sessiya eskirdi",
-          "Telegram botdan Web App'ni qayta oching."
-        );
-
-        return;
-      }
-
-
-      if(result.error === "outside"){
-
-        toast(
-          "❌ Siz ish joyi belgilangan hududda emassiz."
-        );
-
-        return;
-      }
-
-
-      if(result.error === "already"){
-
-        state.keldi = true;
-
-        state.keldiTime =
-          result.time || "";
-
-        renderAttendance({
-          times:{
-            Keldi:state.keldiTime,
-            Ketdi:state.ketdiTime
-          }
-        });
-
-        return;
-      }
-
-
-      throw new Error(
-        result.error || "server"
-      );
-    }
-
-
-    state.keldi = true;
-
-    state.keldiTime =
-      result.time || "";
-
-
-    renderAttendance({
-
-      times:{
-
-        Keldi:
-          state.keldiTime,
-
-        Ketdi:
-          state.ketdiTime
-
-      }
+        section.classList.remove("active");
 
     });
 
 
-    toast(
-      "✅ Ishga kelganingiz belgilandi: " +
-      state.keldiTime
-    );
+    const target =
+      document.getElementById(page);
 
-
-    try{
-
-      if(tg &&
-         tg.HapticFeedback){
-
-        tg.HapticFeedback
-          .notificationOccurred(
-            "success"
-          );
-      }
-
-    }catch(e){}
-
-
-  }catch(error){
-
-    console.error(error);
-
-    toast(
-      "❌ " +
-      (error.message ||
-       "Joylashuvni olishda xatolik.")
-    );
-
-  }finally{
-
-    state.busy = false;
-
-    $("arrivalBtn").disabled =
-      state.keldi;
-
-    $("leaveBtn").disabled =
-      !state.keldi ||
-      state.ketdi;
-  }
-}
-
-
-/* =====================================================
-   KETDIM
-   ===================================================== */
-
-async function checkOut(){
-
-  if(state.busy) return;
-
-
-  if(!state.keldi){
-
-    toast(
-      "Avval «Ishga keldim»ni belgilang."
-    );
-
-    return;
-  }
-
-
-  if(state.ketdi){
-
-    toast(
-      "Siz bugun allaqachon ketgansiz."
-    );
-
-    return;
-  }
-
-
-  state.busy = true;
-
-  $("leaveBtn").disabled = true;
-
-  toast(
-    "🔴 Ishdan ketish qayd qilinmoqda..."
-  );
-
-
-  try{
-
-    /*
-      MUHIM:
-      BU YERDA GEOLOCATION YO'Q.
-      Ketishda GPS so'ralmaydi.
-    */
-
-    var result =
-      await api({
-
-        action:"checkin",
-
-        status:"Ketdi",
-
-        initData:initData
-
-      });
-
-
-    if(!result.ok){
-
-      if(result.error === "auth"){
-
-        showBlock(
-          "🔄",
-          "Sessiya eskirdi",
-          "Telegram botdan Web App'ni qayta oching."
-        );
-
-        return;
-      }
-
-
-      if(result.error === "need_arrival"){
-
-        toast(
-          "Avval ishga kelganingizni belgilang."
-        );
-
-        return;
-      }
-
-
-      if(result.error === "already"){
-
-        state.ketdi = true;
-
-        state.ketdiTime =
-          result.time || "";
-
-        renderAttendance({
-          times:{
-            Keldi:state.keldiTime,
-            Ketdi:state.ketdiTime
-          }
-        });
-
-        return;
-      }
-
-
-      throw new Error(
-        result.error || "server"
-      );
+    if (target) {
+      target.classList.add("active");
     }
 
 
-    state.ketdi = true;
-
-    state.ketdiTime =
-      result.time || "";
-
-
-    state.worked =
-      result.worked ||
-      result.ishlagan ||
-      "";
-
-
-    renderAttendance({
-
-      times:{
-
-        Keldi:
-          state.keldiTime,
-
-        Ketdi:
-          state.ketdiTime
-
-      },
-
-      worked:
-        state.worked
-
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
     });
 
 
-    toast(
-      "✅ Ishdan ketganingiz belgilandi: " +
-      state.ketdiTime
+    closeMenu();
+  }
+
+
+  /* =========================
+     MENU
+  ========================== */
+
+  function openMenu() {
+
+    document
+      .getElementById("overlay")
+      .classList.add("open");
+
+  }
+
+
+  function closeMenu(event) {
+
+    if (
+      event &&
+      event.target &&
+      event.target.id !== "overlay"
+    ) {
+      return;
+    }
+
+    document
+      .getElementById("overlay")
+      .classList.remove("open");
+
+  }
+
+
+  function menuNavigate(page) {
+
+    closeMenu();
+
+    setTimeout(function() {
+      openPage(page);
+    }, 180);
+
+  }
+
+
+  /* =========================
+     TASK
+  ========================== */
+
+  function openTask(name) {
+
+    document
+      .getElementById("modalTaskTitle")
+      .textContent = name;
+
+    document
+      .getElementById("taskModal")
+      .classList.add("open");
+
+  }
+
+
+  function closeTask(event) {
+
+    if (
+      event &&
+      event.target &&
+      event.target.id !== "taskModal"
+    ) {
+      return;
+    }
+
+    document
+      .getElementById("taskModal")
+      .classList.remove("open");
+
+  }
+
+
+  function completeTask() {
+
+    closeTask();
+
+    showToast(
+      "✅ Topshiriq bajarildi deb belgilandi"
     );
 
-
-    try{
-
-      if(tg &&
-         tg.HapticFeedback){
-
-        tg.HapticFeedback
-          .notificationOccurred(
-            "success"
-          );
-      }
-
-    }catch(e){}
-
-
-  }catch(error){
-
-    console.error(error);
-
-    toast(
-      "❌ " +
-      (error.message ||
-       "Serverda xatolik.")
-    );
-
-  }finally{
-
-    state.busy = false;
-
-    $("leaveBtn").disabled =
-      !state.keldi ||
-      state.ketdi;
-  }
-}
-
-
-/* =====================================================
-   ISHLAGAN VAQT
-   ===================================================== */
-
-function calculateWorked(){
-
-  if(
-    !state.keldiTime ||
-    !state.ketdiTime
-  ){
-
-    $("worked").textContent =
-      "0 soat 0 daqiqa";
-
-    return;
   }
 
 
-  var start =
-    parseTime(state.keldiTime);
+  /* =========================
+     KNOWLEDGE SEARCH
+  ========================== */
 
-  var end =
-    parseTime(state.ketdiTime);
+  function searchKnowledge(value) {
 
-
-  if(
-    !start ||
-    !end ||
-    end <= start
-  ){
-
-    return;
-  }
-
-
-  var minutes =
-    Math.floor(
-      (end - start) / 60000
-    );
-
-
-  var hours =
-    Math.floor(minutes / 60);
-
-  var mins =
-    minutes % 60;
-
-
-  $("worked").textContent =
-    hours +
-    " soat " +
-    mins +
-    " daqiqa";
-}
-
-
-function parseTime(value){
-
-  var parts =
-    String(value)
-      .split(":")
-      .map(Number);
-
-
-  if(parts.length < 2){
-
-    return null;
-  }
-
-
-  var d =
-    new Date();
-
-
-  d.setHours(
-    parts[0],
-    parts[1],
-    0,
-    0
-  );
-
-
-  return d.getTime();
-}
-
-
-/* =====================================================
-   REAL-TIME ISHLAGAN VAQT
-   ===================================================== */
-
-setInterval(function(){
-
-  if(
-    state.keldi &&
-    !state.ketdi &&
-    state.keldiTime
-  ){
-
-    var start =
-      parseTime(
-        state.keldiTime
+    const cards =
+      document.querySelectorAll(
+        "#knowledgeGrid .knowledge-card"
       );
 
-    if(start){
+    const query =
+      value.toLowerCase().trim();
 
-      var now =
-        new Date().getTime();
+    cards.forEach(function(card) {
 
-      var minutes =
-        Math.max(
-          0,
-          Math.floor(
-            (now-start)/60000
-          )
-        );
+      const text =
+        card.textContent.toLowerCase();
 
-      var hours =
-        Math.floor(
-          minutes/60
-        );
+      if (text.includes(query)) {
+        card.style.display = "";
+      } else {
+        card.style.display = "none";
+      }
 
-      var mins =
-        minutes%60;
+    });
+
+  }
 
 
-      $("worked").textContent =
-        hours +
-        " soat " +
-        mins +
-        " daqiqa";
+  /* =========================
+     TOAST
+  ========================== */
+
+  let toastTimer = null;
+
+  function showToast(message) {
+
+    const toast =
+      document.getElementById("toast");
+
+    toast.textContent = message;
+
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(function() {
+
+      toast.classList.remove("show");
+
+    }, 2500);
+
+  }
+
+
+  /* =========================
+     AI DEMO
+  ========================== */
+
+  function sendAIMessage() {
+
+    const input =
+      document.getElementById("aiMessage");
+
+    if (!input) return;
+
+    const message =
+      input.value.trim();
+
+    if (!message) return;
+
+
+    const chat =
+      document.getElementById("chat");
+
+
+    const userMessage =
+      document.createElement("div");
+
+    userMessage.className =
+      "message user";
+
+    userMessage.textContent =
+      message;
+
+    chat.appendChild(userMessage);
+
+
+    input.value = "";
+
+
+    setTimeout(function() {
+
+      const aiMessage =
+        document.createElement("div");
+
+      aiMessage.className =
+        "message ai";
+
+      aiMessage.textContent =
+        "Savolingiz qabul qilindi. Keyingi bosqichda men Call Center ma'lumotlar bazasi va AI backend bilan ulanaman.";
+
+      chat.appendChild(aiMessage);
+
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth"
+      });
+
+    }, 600);
+
+  }
+
+
+  /* =========================
+     INIT
+  ========================== */
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+      telegramInit();
+
     }
-  }
+  );
 
-},60000);
-
-
-/* =====================================================
-   START
-   ===================================================== */
-
-function start(){
-
-  $("date").textContent =
-    "Bugun, " + today();
+</script>
 
 
-  if(!telegramInit()){
+<!-- AI INPUT -->
 
-    return;
-  }
+<div class="ai-input">
+
+  <input
+    id="aiMessage"
+    type="text"
+    placeholder="Savolingizni yozing..."
+    onkeydown="if(event.key==='Enter') sendAIMessage()"
+  >
+
+  <button
+    class="send-btn"
+    onclick="sendAIMessage()"
+  >
+    ↑
+  </button>
+
+</div>
 
 
-  renderTelegramUser();
+<script>
 
+  /*
+    AI input faqat AI sahifasida ko'rinishi uchun
+  */
 
-  loadData();
+  const originalOpenPage =
+    window.openPage;
 
-}
+  window.openPage = function(page) {
 
+    originalOpenPage(page);
 
-/* =====================================================
-   VISIBILITY
-   ===================================================== */
+    const aiInput =
+      document.querySelector(".ai-input");
 
-document.addEventListener(
-  "visibilitychange",
-  function(){
+    if (aiInput) {
 
-    if(
-      !document.hidden &&
-      initData
-    ){
+      aiInput.style.display =
+        page === "ai"
+          ? "flex"
+          : "none";
 
-      loadData();
     }
 
-  }
-);
+  };
 
+  document.addEventListener(
+    "DOMContentLoaded",
+    function() {
 
-start();
+      const aiInput =
+        document.querySelector(".ai-input");
+
+      if (aiInput) {
+        aiInput.style.display = "none";
+      }
+
+    }
+  );
 
 </script>
 
 </body>
 </html>
-```
